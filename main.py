@@ -1,16 +1,22 @@
-# This is a sample Python script.
+import projects
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from datetime import datetime
+from joblib import Parallel, delayed
+from multiprocessing import cpu_count
 
 
-# Press the green button in the gutter to run the script.
+
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    print("calculation starts")
+    start_time = datetime.now()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+    cpu_no = cpu_count()
+
+    end_time = datetime.now()
+    print("calculation ends")
+    print("START:", start_time)
+    print("END:", end_time)
+

@@ -1,3 +1,5 @@
+import power_curves
+
 
 class Project:
     def __init__(self, ws100, hub_height, installed_capacity, power_curve, other_cost, other_production):
@@ -34,7 +36,7 @@ class ProjectsStorage:
         self.project_dict[str(self.number_of_projects)] = Project(ws100=6,
                                                                   hub_height=128,
                                                                   installed_capacity=3,
-                                                                  power_curve=Enercon_E115,
+                                                                  power_curve=power_curves.Enercon_E115,
                                                                   other_cost=1,
                                                                   other_production=1
                                                                 )

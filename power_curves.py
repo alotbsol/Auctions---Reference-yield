@@ -1,9 +1,5 @@
 # power curves of selected turbines
 
-global Enercon_E115
-global Nordex131
-global Vestas112
-
 Enercon_E115 = [0,
                 3,
                 48,
