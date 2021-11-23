@@ -24,26 +24,26 @@ class Project:
         self.min_bid = 1
 
         self.hours = 8760
+        self.losses = 0.8
 
-        self.calculate_wsHH()
-        self.calculate_production()
+        self.wsHH = self.calculate_wsHH(ws100_input=self.ws100)
+        self.production = self.calculate_production(ws_input=self.wsHH)
+        self.production_per_MW = (self.production / self.installed_capacity)
+        self.calculate_reference_production()
+        self.capacity_factor = self.production_per_MW/self.hours/1000
 
-    def calculate_wsHH(self):
+    def calculate_wsHH(self, ws100_input):
         reference_hub = 100
         roughness_length = 0.1
 
-        self.wsHH = self.ws100*(math.log(self.hub_height/roughness_length)/math.log(reference_hub/roughness_length))
+        return ws100_input*(math.log(self.hub_height/roughness_length)/math.log(reference_hub/roughness_length))
 
-        print("WS100", self.ws100,
-              "WSHH", self.wsHH,
-              )
-
-    def calculate_production(self):
+    def calculate_production(self, ws_input):
         wind_speed_dist = []
 
         constant = 1.12
         a = 2
-        b = self.wsHH * constant
+        b = ws_input * constant
         x_min = 1
         x_max = 30
         e = np.exp(1)
@@ -58,31 +58,37 @@ class Project:
         production_list = []
 
         for i in range(0, len(wind_speed_dist)):
-            production_list.append(((self.power_curve[i] + self.power_curve[i+1])/2) * wind_speed_dist[i] * self.hours)
+            production_list.append(((self.power_curve[i] + self.power_curve[i+1])/2) * wind_speed_dist[i]
+                                   * self.hours * self.losses * self.other_production)
 
-        self.production = sum(production_list)
-        self.production_per_MW = self.production/self.installed_capacity
+        return sum(production_list)
+
+    def calculate_reference_production(self):
+        reference_ws100 = 6.45
+        reference_wshh = self.calculate_wsHH(ws100_input=reference_ws100)
+        self.reference_production = self. calculate_production(ws_input=reference_wshh)
+
+        self.site_quality = self.production/self.reference_production
+
+    def calculate_correction_factor(self):
+        pass
 
     def print_project_info(self):
         print("WS100:", self.ws100,
-              "Hub height:", self.hub_height,
-              "Installed capacity:", self.installed_capacity,
-              "Other costs:", self.other_cost,
-              "Other production:", self.other_production,
-              "WS HUb height:", self.wsHH,
-              "Production:", self.production,
-              "Production per MW:", self.production_per_MW,
-              "Reference production:", self.reference_production,
-              "Site quality:", self.site_quality,
-              "Capacity factor:", self.capacity_factor,
-              "Correction factor:", self.correction_factor,
-              "LCOE:", self.lcoe,
-              "MIN BID:", self.min_bid,
+              "\nHub height:", self.hub_height,
+              "\nInstalled capacity:", self.installed_capacity,
+              "\nOther costs:", self.other_cost,
+              "\nOther production:", self.other_production,
+              "\nWS HUb height:", self.wsHH,
+              "\nProduction:", self.production,
+              "\nProduction per MW:", self.production_per_MW,
+              "\nReference production:", self.reference_production,
+              "\nSite quality:", self.site_quality,
+              "\nCapacity factor:", self.capacity_factor,
+              "\nCorrection factor:", self.correction_factor,
+              "\nLCOE:", self.lcoe,
+              "\nMIN BID:", self.min_bid,
               )
-
-
-
-
 
 
 class ProjectsStorage:
