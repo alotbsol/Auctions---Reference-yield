@@ -8,13 +8,11 @@ import projects
 
 
 def scenario1():
-    number_of_projects = 1
-    Master_storage = projects.ProjectsStorage()
+    number_of_projects = 2
+    Master_storage = projects.ProjectsStorage(demand=2)
 
     for i in range(number_of_projects):
         Master_storage.add_project()
-
-    print(Master_storage.project_dict)
 
     for i in Master_storage.project_dict:
         print(Master_storage.project_dict[i].print_project_info())

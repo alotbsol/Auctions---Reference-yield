@@ -87,7 +87,6 @@ class Project:
     def calculate_min_bid(self):
         self.min_bid = self.lcoe / self.correction_factor
 
-
     def print_project_info(self):
         print("WS100:", self.ws100,
               "\nHub height:", self.hub_height,
@@ -108,9 +107,11 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self):
+    def __init__(self, demand):
         self.project_dict = {}
         self.number_of_projects = 1
+
+        self.demand = demand
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
                     power_curve=power_curves.Enercon_E115, other_cost=1, other_production=1):
