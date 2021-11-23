@@ -25,6 +25,7 @@ def calculate_correction(input_sq):
 
             return correction_factor
 
+
 def calculate_extrapolated_correction(input_sq):
     correction_factor = 0
     if input_sq > 1.5:
