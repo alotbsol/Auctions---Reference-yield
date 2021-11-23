@@ -16,6 +16,10 @@ def scenario1():
 
     print(Master_storage.project_dict)
 
+    for i in Master_storage.project_dict:
+        print(Master_storage.project_dict[i].print_project_info())
+
+
 
 if __name__ == '__main__':
     print("calculation starts")

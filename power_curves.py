@@ -1,6 +1,8 @@
-# power curves of selected turbines
+# power curves of selected turbines from wind speed 0 to wind speed 30m/s
 
+# https://en.wind-turbine-models.com/turbines/832-enercon-e-115-3.000
 Enercon_E115 = [0,
+                0,
                 3,
                 48,
                 155,
@@ -33,6 +35,7 @@ Enercon_E115 = [0,
 
 Nordex131 = [0,
              0,
+             0,
              33,
              194,
              442,
@@ -63,6 +66,7 @@ Nordex131 = [0,
              0]
 
 Vestas112 = [0,
+             0,
              0,
              47,
              149,

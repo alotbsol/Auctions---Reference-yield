@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 import power_curves
 
@@ -22,9 +23,10 @@ class Project:
         self.lcoe = 1
         self.min_bid = 1
 
-        self.all_vars = []
+        self.hours = 8760
 
         self.calculate_wsHH()
+        self.calculate_production()
 
     def calculate_wsHH(self):
         reference_hub = 100
@@ -37,9 +39,49 @@ class Project:
               )
 
     def calculate_production(self):
-        = a/b *
+        wind_speed_dist = []
 
-        =WEIBULL.DIST(A26,$C$12,$C$14, TRUE)-SUM($C$25: C25)
+        constant = 1.12
+        a = 2
+        b = self.wsHH * constant
+        x_min = 1
+        x_max = 30
+        e = np.exp(1)
+
+        val = 0
+        for i in range(x_min, x_max):
+            cumulative = (1 - e ** -(i / b) ** a)
+
+            wind_speed_dist.append(cumulative - val)
+            val = cumulative
+
+        production_list = []
+
+        for i in range(0, len(wind_speed_dist)):
+            production_list.append(((self.power_curve[i] + self.power_curve[i+1])/2) * wind_speed_dist[i] * self.hours)
+
+        self.production = sum(production_list)
+        self.production_per_MW = self.production/self.installed_capacity
+
+    def print_project_info(self):
+        print("WS100:", self.ws100,
+              "Hub height:", self.hub_height,
+              "Installed capacity:", self.installed_capacity,
+              "Other costs:", self.other_cost,
+              "Other production:", self.other_production,
+              "WS HUb height:", self.wsHH,
+              "Production:", self.production,
+              "Production per MW:", self.production_per_MW,
+              "Reference production:", self.reference_production,
+              "Site quality:", self.site_quality,
+              "Capacity factor:", self.capacity_factor,
+              "Correction factor:", self.correction_factor,
+              "LCOE:", self.lcoe,
+              "MIN BID:", self.min_bid,
+              )
+
+
+
 
 
 
