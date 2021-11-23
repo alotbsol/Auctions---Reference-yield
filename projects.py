@@ -148,16 +148,17 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self, demand, name, max_bid=1000):
+    def __init__(self, demand, name, ref_yield_scenarios, max_bid=1000):
         self.project_dict = {}
         self.number_of_projects = 1
 
         self.demand = demand
         self.name = name
+        self.ref_yield_scenarios = ref_yield_scenarios
         self.max_bid = max_bid
 
         self.export_dict = {}
-        self.round_results = {"marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
+        self.round_results = {"ref_yield": [], "marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
                               "subsidy": [], "surplus_projects": []}
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
@@ -175,7 +176,7 @@ class ProjectsStorage:
         self.number_of_projects += 1
 
     def auction_results(self):
-        self.round_results["ref_yield"] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
+        self.round_results["ref_yield"] = self.ref_yield_scenarios
 
         for i in self.round_results["ref_yield"]:
             bids = []
@@ -200,30 +201,29 @@ class ProjectsStorage:
             for ii in self.project_dict:
                 self.export_dict[str(i)][str(ii)] = self.project_dict[ii].all_vars
 
-            self.round_results["marginal_bid"].append(0)
+            self.round_results["marginal_bid"].append(marginal_bid)
             self.round_results["min_successful"].append(0)
             self.round_results["average_successful"].append(0)
             self.round_results["average_subsidy"].append(0)
             self.round_results["subsidy"].append(0)
             self.round_results["surplus_projects"].append(0)
 
-
-    def export(self):
+    def export(self, projects_export=True):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
 
-        for i in self.export_dict:
-            df_projects = pd.DataFrame.from_dict(self.export_dict[str(i)]).transpose()
-            df_projects.columns = ["base_lcoe", "ws100", "hub_height", "installed_capacity", "turbine_name", "other_cost",
-                                   "other_production", "wsHH", "production", "production_per_MW", "reference_production",
-                                   "site_quality", "capacity_factor",
-                                   "corr_f_applicability", "correction_factor", "extrapolated_correction_factor",
-                                   "lcoe", "min_bid", "winning", "marginal", "subsidy", "surplus"]
-
-            df_projects.to_excel(writer, sheet_name="Projects_ref{0}".format(i))
-
-        """
         df_results = pd.DataFrame.from_dict(self.round_results).transpose()
         df_results.to_excel(writer, sheet_name="Results")
-        """
+
+        if projects_export:
+            for i in self.export_dict:
+                df_projects = pd.DataFrame.from_dict(self.export_dict[str(i)]).transpose()
+                df_projects.columns = ["base_lcoe", "ws100", "hub_height", "installed_capacity", "turbine_name", "other_cost",
+                                       "other_production", "wsHH", "production", "production_per_MW", "reference_production",
+                                       "site_quality", "capacity_factor",
+                                       "corr_f_applicability", "correction_factor", "extrapolated_correction_factor",
+                                       "lcoe", "min_bid", "winning", "marginal", "subsidy", "surplus"]
+
+                df_projects.to_excel(writer, sheet_name="Projects_ref{0}".format(i))
+
 
         writer.save()

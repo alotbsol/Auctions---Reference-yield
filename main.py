@@ -7,7 +7,10 @@ import power_curves
 
 def scenario1():
     number_of_projects = 41
-    Master_storage = projects.ProjectsStorage(demand=35, name="scenario1")
+    ref_yield_scenarios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
+    """[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]"""
+
+    Master_storage = projects.ProjectsStorage(demand=35, name="scenario1", ref_yield_scenarios=ref_yield_scenarios)
 
     ws_list = np.linspace(start=5, stop=9, num=number_of_projects, endpoint=True, retstep=False, dtype=None)
 
@@ -21,14 +24,8 @@ def scenario1():
                                    other_cost=1,
                                    other_production=1)
 
-    """
-    for i in Master_storage.project_dict:
-        print(Master_storage.project_dict[i].print_project_info())"""
-
     Master_storage.auction_results()
-
-    Master_storage.export()
-
+    Master_storage.export(projects_export=True)
 
 
 if __name__ == '__main__':
