@@ -9,6 +9,8 @@ from ref_yield import calculate_extrapolated_correction
 
 class Project:
     def __init__(self, base_lcoe, ws100, hub_height, installed_capacity, turbine_name, power_curve, other_cost, other_production):
+        self.all_vars = []
+
         self.base_lcoe = base_lcoe
         self.ws100 = ws100
         self.hub_height = hub_height
@@ -29,6 +31,11 @@ class Project:
         self.lcoe = 1
         self.min_bid = 1
 
+        self.winning = 0
+        self.marginal = 0
+        self.subsidy = 0
+        self.surplus = 0
+
         self.hours = 8760
         self.losses = 0.8
 
@@ -40,11 +47,15 @@ class Project:
         self.calculate_correction_factor()
         self.calculate_lcoe()
         self.calculate_min_bid()
+        self.update_variables()
 
+
+    def update_variables(self):
         self.all_vars = [self.base_lcoe, self.ws100, self.hub_height, self.installed_capacity, self.turbine_name,
-                        self.other_cost, self.other_production, self.wsHH, self.production, self.production_per_MW,
-                        self.reference_production, self.site_quality, self.capacity_factor, self.correction_factor,
-                        self.extrapolated_correction_factor, self.lcoe, self.min_bid]
+                         self.other_cost, self.other_production, self.wsHH, self.production, self.production_per_MW,
+                         self.reference_production, self.site_quality, self.capacity_factor, self.correction_factor,
+                         self.extrapolated_correction_factor, self.lcoe, self.min_bid, self.winning, self.marginal,
+                         self.subsidy, self.surplus]
 
     def calculate_wsHH(self, ws100_input):
         reference_hub = 100
@@ -112,14 +123,30 @@ class Project:
               "\nMIN BID:", self.min_bid,
               )
 
+    def change_to_winning(self, in_put=1):
+        self.winning = in_put
+        self.update_variables()
+
+    def change_to_marginal(self, in_put=1):
+        self.marginal = in_put
+        self.update_variables()
+
+    def assign_subsidy(self, in_bid):
+        self.subsidy = in_bid * self.correction_factor
+        self.surplus = self.subsidy - self.lcoe
+        self.update_variables()
+
 
 class ProjectsStorage:
-    def __init__(self, demand, name):
+    def __init__(self, demand, name, max_bid=1000):
         self.project_dict = {}
         self.number_of_projects = 1
 
         self.demand = demand
         self.name = name
+        self.max_bid = max_bid
+
+        self.round_results = {}
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
                     power_curve=power_curves.Enercon_E115, turbine_name="Enercon_E115",
@@ -135,16 +162,49 @@ class ProjectsStorage:
                                                                   )
         self.number_of_projects += 1
 
+    def auction_results(self):
+        bids = []
+        for i in self.project_dict:
+            bids.append(self.project_dict[i].min_bid)
+
+        winning_projects = sorted(range(len(bids)), key=lambda k: bids[k])[:self.demand]
+        winning_projects = [x + 1 for x in winning_projects]
+        marginal_project = sorted(range(len(bids)), key=lambda k: bids[k])[self.demand - 1]
+
+        marginal_bid = self.project_dict[str(marginal_project)].min_bid
+
+        for i in winning_projects:
+            self.project_dict[str(i)].change_to_winning()
+            self.project_dict[str(i)].assign_subsidy(in_bid=marginal_bid)
+
+        self.project_dict[str(marginal_project)].change_to_marginal()
+
+
+        self.round_results["ref_yield"] = [0, 1]
+        self.round_results["marginal_bid"] = [0, 1]
+        self.round_results["min_successful"] = [0, 1]
+        self.round_results["average_successful"] = [0, 1]
+        self.round_results["average_subsidy"] = [0, 1]
+        self.round_results["subsidy"] = [0, 1]
+        self.round_results["surplus projects"] = [0, 1]
+
+
     def export(self):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
 
         export_dict = {}
         for i in self.project_dict:
             export_dict[str(i)] = self.project_dict[i].all_vars
-            print(self.project_dict[i].all_vars)
 
+        df_projects = pd.DataFrame.from_dict(export_dict).transpose()
+        df_projects.columns = ["base_lcoe", "ws100", "hub_height", "installed_capacity", "turbine_name", "other_cost",
+                          "other_production", "wsHH", "production", "production_per_MW", "reference_production",
+                          "site_quality", "capacity_factor", "correction_factor", "extrapolated_correction_factor",
+                          "lcoe", "min_bid", "winning", "marginal", "subsidy", "surplus"]
 
-        df_all = pd.DataFrame.from_dict(export_dict).transpose()
-        df_all.to_excel(writer, sheet_name="AllData")
+        df_projects.to_excel(writer, sheet_name="AllProjects")
+
+        df_results = pd.DataFrame.from_dict(self.round_results).transpose()
+        df_results.to_excel(writer, sheet_name="Results")
 
         writer.save()

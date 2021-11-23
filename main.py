@@ -1,16 +1,13 @@
-import projects
-
 from datetime import datetime
-from joblib import Parallel, delayed
-from multiprocessing import cpu_count
 import numpy as np
 
 import projects
 import power_curves
 
+
 def scenario1():
     number_of_projects = 41
-    Master_storage = projects.ProjectsStorage(demand=2, name="scenario1")
+    Master_storage = projects.ProjectsStorage(demand=35, name="scenario1")
 
     ws_list = np.linspace(start=5, stop=9, num=number_of_projects, endpoint=True, retstep=False, dtype=None)
 
@@ -24,8 +21,11 @@ def scenario1():
                                    other_cost=1,
                                    other_production=1)
 
+    """
     for i in Master_storage.project_dict:
-        print(Master_storage.project_dict[i].print_project_info())
+        print(Master_storage.project_dict[i].print_project_info())"""
+
+    Master_storage.auction_results()
 
     Master_storage.export()
 
