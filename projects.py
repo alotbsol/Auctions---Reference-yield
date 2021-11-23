@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import pandas as pd
 
 import power_curves
 from ref_yield import calculate_correction
@@ -7,12 +8,13 @@ from ref_yield import calculate_extrapolated_correction
 
 
 class Project:
-    def __init__(self, base_lcoe, ws100, hub_height, installed_capacity, power_curve, other_cost, other_production):
+    def __init__(self, base_lcoe, ws100, hub_height, installed_capacity, turbine_name, power_curve, other_cost, other_production):
         self.base_lcoe = base_lcoe
         self.ws100 = ws100
         self.hub_height = hub_height
         self.installed_capacity = installed_capacity
         self.power_curve = power_curve
+        self.turbine_name = turbine_name
         self.other_cost = other_cost
         self.other_production = other_production
 
@@ -38,6 +40,11 @@ class Project:
         self.calculate_correction_factor()
         self.calculate_lcoe()
         self.calculate_min_bid()
+
+        self.all_vars = [self.base_lcoe, self.ws100, self.hub_height, self.installed_capacity, self.turbine_name,
+                        self.other_cost, self.other_production, self.wsHH, self.production, self.production_per_MW,
+                        self.reference_production, self.site_quality, self.capacity_factor, self.correction_factor,
+                        self.extrapolated_correction_factor, self.lcoe, self.min_bid]
 
     def calculate_wsHH(self, ws100_input):
         reference_hub = 100
@@ -107,20 +114,37 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self, demand):
+    def __init__(self, demand, name):
         self.project_dict = {}
         self.number_of_projects = 1
 
         self.demand = demand
+        self.name = name
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
-                    power_curve=power_curves.Enercon_E115, other_cost=1, other_production=1):
+                    power_curve=power_curves.Enercon_E115, turbine_name="Enercon_E115",
+                    other_cost=1, other_production=1):
         self.project_dict[str(self.number_of_projects)] = Project(base_lcoe=base_lcoe,
                                                                   ws100=ws100,
                                                                   hub_height=hub_height,
                                                                   installed_capacity=installed_capacity,
+                                                                  turbine_name=turbine_name,
                                                                   power_curve=power_curve,
                                                                   other_cost=other_cost,
                                                                   other_production=other_production
                                                                   )
         self.number_of_projects += 1
+
+    def export(self):
+        writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
+
+        export_dict = {}
+        for i in self.project_dict:
+            export_dict[str(i)] = self.project_dict[i].all_vars
+            print(self.project_dict[i].all_vars)
+
+
+        df_all = pd.DataFrame.from_dict(export_dict).transpose()
+        df_all.to_excel(writer, sheet_name="AllData")
+
+        writer.save()
