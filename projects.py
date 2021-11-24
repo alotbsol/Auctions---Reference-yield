@@ -185,6 +185,8 @@ class ProjectsStorage:
 
         for i in self.ref_yield_scenarios:
             bids = []
+            successful_bids = []
+
             for ii in self.project_dict:
                 self.project_dict[ii].corr_f_applicability = i
                 self.project_dict[ii].update_project()
@@ -193,12 +195,13 @@ class ProjectsStorage:
             winning_projects = sorted(range(len(bids)), key=lambda k: bids[k])[:self.demand]
             winning_projects = [x + 1 for x in winning_projects]
             marginal_project = winning_projects[-1]
-
+            minimum_bid = self.project_dict[str(winning_projects[0])].min_bid
             marginal_bid = float(self.project_dict[str(marginal_project)].min_bid)
 
             for ii in winning_projects:
                 self.project_dict[str(ii)].change_to_winning()
                 self.project_dict[str(ii)].assign_subsidy(in_bid=marginal_bid)
+                successful_bids.append(self.project_dict[str(ii)].min_bid)
 
             self.project_dict[str(marginal_project)].change_to_marginal()
 
@@ -208,8 +211,8 @@ class ProjectsStorage:
 
             self.round_results["itteration"].append(self.itteration)
             self.round_results["marginal_bid"].append(marginal_bid)
-            self.round_results["min_successful"].append(0)
-            self.round_results["average_successful"].append(0)
+            self.round_results["min_successful"].append(minimum_bid)
+            self.round_results["average_successful"].append(sum(successful_bids)/len(successful_bids))
             self.round_results["average_subsidy"].append(0)
             self.round_results["subsidy"].append(0)
             self.round_results["surplus_projects"].append(0)
