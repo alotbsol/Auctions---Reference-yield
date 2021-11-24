@@ -148,7 +148,7 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self, demand, name, ref_yield_scenarios, max_bid=1000):
+    def __init__(self, demand, name, ref_yield_scenarios, max_bid=1000, itteration=1):
         self.project_dict = {}
         self.number_of_projects = 1
 
@@ -156,9 +156,10 @@ class ProjectsStorage:
         self.name = name
         self.ref_yield_scenarios = ref_yield_scenarios
         self.max_bid = max_bid
+        self.itteration = itteration
 
         self.export_dict = {}
-        self.round_results = {"ref_yield": [], "marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
+        self.round_results = {"itteration": [], "ref_yield": [], "marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
                               "subsidy": [], "surplus_projects": []}
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
@@ -175,10 +176,14 @@ class ProjectsStorage:
                                                                   )
         self.number_of_projects += 1
 
-    def auction_results(self):
-        self.round_results["ref_yield"] = self.ref_yield_scenarios
+    def delete_projects(self):
+        self.project_dict = {}
+        self.number_of_projects = 1
 
-        for i in self.round_results["ref_yield"]:
+    def auction_results(self):
+        self.round_results["ref_yield"].extend(self.ref_yield_scenarios)
+
+        for i in self.ref_yield_scenarios:
             bids = []
             for ii in self.project_dict:
                 self.project_dict[ii].corr_f_applicability = i
@@ -187,7 +192,7 @@ class ProjectsStorage:
 
             winning_projects = sorted(range(len(bids)), key=lambda k: bids[k])[:self.demand]
             winning_projects = [x + 1 for x in winning_projects]
-            marginal_project = sorted(range(len(bids)), key=lambda k: bids[k])[self.demand - 1]
+            marginal_project = winning_projects[-1]
 
             marginal_bid = float(self.project_dict[str(marginal_project)].min_bid)
 
@@ -201,6 +206,7 @@ class ProjectsStorage:
             for ii in self.project_dict:
                 self.export_dict[str(i)][str(ii)] = self.project_dict[ii].all_vars
 
+            self.round_results["itteration"].append(self.itteration)
             self.round_results["marginal_bid"].append(marginal_bid)
             self.round_results["min_successful"].append(0)
             self.round_results["average_successful"].append(0)
@@ -208,10 +214,11 @@ class ProjectsStorage:
             self.round_results["subsidy"].append(0)
             self.round_results["surplus_projects"].append(0)
 
+
     def export(self, projects_export=True):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
 
-        df_results = pd.DataFrame.from_dict(self.round_results).transpose()
+        df_results = pd.DataFrame.from_dict(self.round_results)
         df_results.to_excel(writer, sheet_name="Results")
 
         if projects_export:
