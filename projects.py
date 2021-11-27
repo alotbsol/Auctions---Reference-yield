@@ -150,19 +150,22 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self, demand, name, ref_yield_scenarios, max_bid_possible=100, itteration=1):
+    def __init__(self, demand, name, ref_yield_scenarios, max_bid_possible=100, iteration=1, project_size_adjustment=3):
         self.project_dict = {}
         self.number_of_projects = 0
+        self.project_size_adjustment = project_size_adjustment
 
         self.demand = demand
         self.name = name
         self.ref_yield_scenarios = ref_yield_scenarios
         self.max_bid_possible = max_bid_possible
-        self.itteration = itteration
+        self.iteration = iteration
 
         self.export_dict = {}
-        self.round_results = {"name": [], "itteration": [], "supply": [], "demand": [], "ref_yield": [], "marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
-                              "subsidy": [], "surplus_projects": [], "produced_el": []}
+        self.round_results = {"name": [], "iteration": [], "supply": [], "demand": [], "ref_yield": [], "marginal_bid": [],
+                              "min_successful": [], "average_successful": [], "average_subsidy": [],
+                              "subsidy": [], "subsidy_perMW": [], "surplus_projects": [], "surplus_projects_perMW": [],
+                              "produced_el": [], "produced_el_perMW": []}
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
                     power_curve=power_curves.Enercon_E115, turbine_name="Enercon_E115",
@@ -216,25 +219,29 @@ class ProjectsStorage:
                 self.project_dict[str(ii)].assign_subsidy(in_bid=marginal_bid)
                 successful_bids.append(self.project_dict[str(ii)].min_bid)
 
-                subsidy.append(self.project_dict[str(ii)].subsidy * self.project_dict[str(ii)].production)
-                surplus.append(self.project_dict[str(ii)].surplus * self.project_dict[str(ii)].production)
-                produced_el.append(self.project_dict[str(ii)].production)
+                # set to use production per MW and then multiplied by size of project
+                subsidy.append(self.project_dict[str(ii)].subsidy * self.project_dict[str(ii)].production_per_MW * self.project_size_adjustment)
+                surplus.append(self.project_dict[str(ii)].surplus * self.project_dict[str(ii)].production_per_MW * self.project_size_adjustment)
+                produced_el.append(self.project_dict[str(ii)].production_per_MW * self.project_size_adjustment)
 
             self.export_dict[str(i)] = {}
             for ii in self.project_dict:
                 self.export_dict[str(i)][str(ii)] = self.project_dict[ii].all_vars
 
             self.round_results["name"].append(self.name)
-            self.round_results["itteration"].append(self.itteration)
+            self.round_results["iteration"].append(self.iteration)
             self.round_results["supply"].append(self.number_of_projects)
             self.round_results["demand"].append(self.demand)
             self.round_results["marginal_bid"].append(marginal_bid)
             self.round_results["min_successful"].append(minimum_bid)
             self.round_results["average_successful"].append(sum(successful_bids)/len(successful_bids))
-            self.round_results["average_subsidy"].append(0)
+            self.round_results["average_subsidy"].append(sum(subsidy)/sum(produced_el))
             self.round_results["subsidy"].append(sum(subsidy))
+            self.round_results["subsidy_perMW"].append(sum(subsidy)/self.project_size_adjustment/len(winning_projects))
             self.round_results["surplus_projects"].append(sum(surplus))
+            self.round_results["surplus_projects_perMW"].append(sum(surplus)/self.project_size_adjustment/len(winning_projects))
             self.round_results["produced_el"].append(sum(produced_el))
+            self.round_results["produced_el_perMW"].append(sum(produced_el)/self.project_size_adjustment/len(winning_projects))
 
 
     def export(self, projects_export=True):
