@@ -9,7 +9,7 @@ from ref_yield import calculate_extrapolated_correction
 
 class Project:
     def __init__(self, base_lcoe, ws100, hub_height, installed_capacity,
-                 turbine_name, power_curve, other_cost, other_production,
+                 turbine_name, power_curve, other_cost, other_production, max_bid_possible,
                  corr_f_applicability=1):
         self.all_vars = []
 
@@ -21,6 +21,7 @@ class Project:
         self.turbine_name = turbine_name
         self.other_cost = other_cost
         self.other_production = other_production
+        self.max_bid_possible = max_bid_possible
         self.corr_f_applicability = corr_f_applicability
 
         self.wsHH = 1
@@ -110,7 +111,8 @@ class Project:
         self.extrapolated_correction_factor = calculate_extrapolated_correction(self.site_quality)
 
     def calculate_lcoe(self):
-        self.lcoe = self.base_lcoe * self.extrapolated_correction_factor * self.other_cost
+        self.lcoe = min(self.base_lcoe * self.extrapolated_correction_factor * self.other_cost,
+                        self.max_bid_possible * self.correction_factor)
 
     def calculate_min_bid(self):
         self.min_bid = self.lcoe / self.correction_factor
@@ -148,23 +150,25 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self, demand, name, ref_yield_scenarios, max_bid=1000, itteration=1):
+    def __init__(self, demand, name, ref_yield_scenarios, max_bid_possible=100, itteration=1):
         self.project_dict = {}
-        self.number_of_projects = 1
+        self.number_of_projects = 0
 
         self.demand = demand
         self.name = name
         self.ref_yield_scenarios = ref_yield_scenarios
-        self.max_bid = max_bid
+        self.max_bid_possible = max_bid_possible
         self.itteration = itteration
 
         self.export_dict = {}
-        self.round_results = {"itteration": [], "ref_yield": [], "marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
+        self.round_results = {"name": [], "itteration": [], "supply": [], "demand": [], "ref_yield": [], "marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
                               "subsidy": [], "surplus_projects": [], "produced_el": []}
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
                     power_curve=power_curves.Enercon_E115, turbine_name="Enercon_E115",
-                    other_cost=1, other_production=1):
+                    other_cost=1, other_production=1, ):
+
+        self.number_of_projects += 1
         self.project_dict[str(self.number_of_projects)] = Project(base_lcoe=base_lcoe,
                                                                   ws100=ws100,
                                                                   hub_height=hub_height,
@@ -172,13 +176,13 @@ class ProjectsStorage:
                                                                   turbine_name=turbine_name,
                                                                   power_curve=power_curve,
                                                                   other_cost=other_cost,
-                                                                  other_production=other_production
+                                                                  other_production=other_production,
+                                                                  max_bid_possible=self.max_bid_possible
                                                                   )
-        self.number_of_projects += 1
 
     def delete_projects(self):
         self.project_dict = {}
-        self.number_of_projects = 1
+        self.number_of_projects = 0
 
     def auction_results(self):
         self.round_results["ref_yield"].extend(self.ref_yield_scenarios)
@@ -197,9 +201,15 @@ class ProjectsStorage:
 
             winning_projects = sorted(range(len(bids)), key=lambda k: bids[k])[:self.demand]
             winning_projects = [x + 1 for x in winning_projects]
-            marginal_project = winning_projects[-1]
+
             minimum_bid = self.project_dict[str(winning_projects[0])].min_bid
-            marginal_bid = float(self.project_dict[str(marginal_project)].min_bid)
+
+            if len(winning_projects) < self.demand:
+                marginal_bid = self.max_bid_possible
+            else:
+                marginal_project = winning_projects[-1]
+                marginal_bid = float(self.project_dict[str(marginal_project)].min_bid)
+                self.project_dict[str(marginal_project)].change_to_marginal()
 
             for ii in winning_projects:
                 self.project_dict[str(ii)].change_to_winning()
@@ -210,16 +220,14 @@ class ProjectsStorage:
                 surplus.append(self.project_dict[str(ii)].surplus * self.project_dict[str(ii)].production)
                 produced_el.append(self.project_dict[str(ii)].production)
 
-
-
-
-            self.project_dict[str(marginal_project)].change_to_marginal()
-
             self.export_dict[str(i)] = {}
             for ii in self.project_dict:
                 self.export_dict[str(i)][str(ii)] = self.project_dict[ii].all_vars
 
+            self.round_results["name"].append(self.name)
             self.round_results["itteration"].append(self.itteration)
+            self.round_results["supply"].append(self.number_of_projects)
+            self.round_results["demand"].append(self.demand)
             self.round_results["marginal_bid"].append(marginal_bid)
             self.round_results["min_successful"].append(minimum_bid)
             self.round_results["average_successful"].append(sum(successful_bids)/len(successful_bids))
@@ -248,3 +256,9 @@ class ProjectsStorage:
 
 
         writer.save()
+
+    def return_results(self):
+        return pd.DataFrame.from_dict(self.round_results)
+
+
+
