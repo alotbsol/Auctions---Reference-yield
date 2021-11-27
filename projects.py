@@ -47,7 +47,7 @@ class Project:
         self.production = self.calculate_production(ws_input=self.wsHH)
         self.production_per_MW = (self.production / self.installed_capacity)
         self.calculate_reference_production()
-        self.capacity_factor = self.production_per_MW/self.hours/1000
+        self.capacity_factor = self.production_per_MW/self.hours
         self.calculate_correction_factor()
         self.calculate_lcoe()
         self.calculate_min_bid()
@@ -96,7 +96,7 @@ class Project:
             production_list.append(((self.power_curve[i] + self.power_curve[i+1])/2) * wind_speed_dist[i]
                                    * self.hours * self.losses * self.other_production)
 
-        return sum(production_list)
+        return sum(production_list)/1000
 
     def calculate_reference_production(self):
         reference_ws100 = 6.45
@@ -160,7 +160,7 @@ class ProjectsStorage:
 
         self.export_dict = {}
         self.round_results = {"itteration": [], "ref_yield": [], "marginal_bid": [], "min_successful": [], "average_successful": [], "average_subsidy": [],
-                              "subsidy": [], "surplus_projects": []}
+                              "subsidy": [], "surplus_projects": [], "produced_el": []}
 
     def add_project(self, base_lcoe=50, ws100=6, hub_height=128, installed_capacity=3,
                     power_curve=power_curves.Enercon_E115, turbine_name="Enercon_E115",
@@ -186,6 +186,9 @@ class ProjectsStorage:
         for i in self.ref_yield_scenarios:
             bids = []
             successful_bids = []
+            subsidy = []
+            surplus = []
+            produced_el = []
 
             for ii in self.project_dict:
                 self.project_dict[ii].corr_f_applicability = i
@@ -203,6 +206,13 @@ class ProjectsStorage:
                 self.project_dict[str(ii)].assign_subsidy(in_bid=marginal_bid)
                 successful_bids.append(self.project_dict[str(ii)].min_bid)
 
+                subsidy.append(self.project_dict[str(ii)].subsidy * self.project_dict[str(ii)].production)
+                surplus.append(self.project_dict[str(ii)].surplus * self.project_dict[str(ii)].production)
+                produced_el.append(self.project_dict[str(ii)].production)
+
+
+
+
             self.project_dict[str(marginal_project)].change_to_marginal()
 
             self.export_dict[str(i)] = {}
@@ -214,8 +224,9 @@ class ProjectsStorage:
             self.round_results["min_successful"].append(minimum_bid)
             self.round_results["average_successful"].append(sum(successful_bids)/len(successful_bids))
             self.round_results["average_subsidy"].append(0)
-            self.round_results["subsidy"].append(0)
-            self.round_results["surplus_projects"].append(0)
+            self.round_results["subsidy"].append(sum(subsidy))
+            self.round_results["surplus_projects"].append(sum(surplus))
+            self.round_results["produced_el"].append(sum(produced_el))
 
 
     def export(self, projects_export=True):

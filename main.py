@@ -27,8 +27,9 @@ def scenario1():
     Master_storage.auction_results()
     Master_storage.export(projects_export=True)
 
+
 def scenario2():
-    itterations = 2
+    itterations = 10
     number_of_projects = 41
     ref_yield_scenarios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
     """[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]"""
@@ -60,7 +61,7 @@ if __name__ == '__main__':
     start_time = datetime.now()
 
     scenario1()
-    """scenario2()"""
+    scenario2()
 
     end_time = datetime.now()
     print("calculation ends")
