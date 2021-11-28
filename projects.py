@@ -150,10 +150,12 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self, demand, name, ref_yield_scenarios, max_bid_possible=100, iteration=1, project_size_adjustment=3):
+    def __init__(self, demand, name, ref_yield_scenarios, max_bid_possible=100, iteration=1, project_size_adjustment=3,
+                 process_id=1):
         self.project_dict = {}
         self.number_of_projects = 0
         self.project_size_adjustment = project_size_adjustment
+        self.process_id = process_id
 
         self.demand = demand
         self.name = name
@@ -162,7 +164,7 @@ class ProjectsStorage:
         self.iteration = iteration
 
         self.export_dict = {}
-        self.round_results = {"name": [], "iteration": [], "supply": [], "demand": [], "ref_yield": [], "marginal_bid": [],
+        self.round_results = {"name": [], "process_id": [], "iteration": [], "supply": [], "demand": [], "ref_yield": [], "marginal_bid": [],
                               "min_successful": [], "average_successful": [], "average_subsidy": [],
                               "subsidy": [], "subsidy_perMW": [], "surplus_projects": [], "surplus_projects_perMW": [],
                               "produced_el": [], "produced_el_perMW": []}
@@ -229,6 +231,7 @@ class ProjectsStorage:
                 self.export_dict[str(i)][str(ii)] = self.project_dict[ii].all_vars
 
             self.round_results["name"].append(self.name)
+            self.round_results["process_id"].append(self.process_id)
             self.round_results["iteration"].append(self.iteration)
             self.round_results["supply"].append(self.number_of_projects)
             self.round_results["demand"].append(self.demand)
