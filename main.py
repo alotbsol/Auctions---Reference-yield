@@ -6,6 +6,7 @@ import projects
 import power_curves
 from fun import ran_gen_float
 from german_auctions import auctions_supply_demand
+from storage import Storage
 
 
 def scenario1():
@@ -140,12 +141,11 @@ if __name__ == '__main__':
     """
     scenario1()
     scenario2_other_costs()
-    
-    
     scenario3_german_auctions()
-    """
-    scenario1()
     test()
+    """
+
+    scenario3_german_auctions()
 
     end_time = datetime.now()
     print("calculation ends")
