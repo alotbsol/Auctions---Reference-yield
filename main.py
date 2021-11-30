@@ -67,7 +67,7 @@ def scenario2_other_costs():
 
 def scenario3_german_auctions():
     df_results = pd.DataFrame()
-    iterations = 40
+    iterations = 16
     ref_yield_scenarios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
 
     # submitted/won/max bid/average project

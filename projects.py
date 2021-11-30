@@ -246,7 +246,6 @@ class ProjectsStorage:
             self.round_results["produced_el"].append(sum(produced_el))
             self.round_results["produced_el_perMW"].append(sum(produced_el)/self.project_size_adjustment/len(winning_projects))
 
-
     def export(self, projects_export=True):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
 
