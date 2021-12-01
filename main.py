@@ -101,7 +101,7 @@ def scenario3_supply_demand():
 def scenario4_other_costs():
     df_results = pd.DataFrame()
 
-    iterations = 100
+    iterations = 1000
     number_of_projects = 41
     ref_yield_scenarios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
 
@@ -131,14 +131,14 @@ def scenario4_other_costs():
             Master_storage.delete_projects()
             Master_storage.iteration += 1
 
-            df_results = df_results.append(Master_storage.return_results())
+        df_results = df_results.append(Master_storage.return_results())
 
     writer = pd.ExcelWriter("scenario4_other_costs.xlsx", engine="xlsxwriter")
     df_results.to_excel(writer, sheet_name="Results")
     writer.save()
 
 
-def scenario3_german_auctions():
+def scenario5_german_auctions():
     df_results = pd.DataFrame()
     iterations = 10000
     ref_yield_scenarios = [0, 1, 1.5]
@@ -178,7 +178,7 @@ def scenario3_german_auctions():
 
         df_results = df_results.append(Master_storage.return_results())
 
-    writer = pd.ExcelWriter("scenario3_german_auctions.xlsx", engine="xlsxwriter")
+    writer = pd.ExcelWriter("scenario5_german_auctions.xlsx", engine="xlsxwriter")
     df_results.to_excel(writer, sheet_name="Results")
     writer.save()
 
