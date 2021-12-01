@@ -33,6 +33,30 @@ def scenario1():
     Master_storage.auction_results()
     Master_storage.export(projects_export=True)
 
+def scenario2():
+    number_of_projects = 41
+    ref_yield_scenarios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
+    """[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]"""
+
+    Master_storage = projects.ProjectsStorage(demand=31, name="scenario2",
+                                              ref_yield_scenarios=ref_yield_scenarios,
+                                              project_size_adjustment=3)
+
+    ws_list = np.linspace(start=5, stop=9, num=number_of_projects, endpoint=True, retstep=False, dtype=None)
+
+    for i in range(number_of_projects):
+        Master_storage.add_project(base_lcoe=50,
+                                   ws100=ws_list[i],
+                                   hub_height=128,
+                                   installed_capacity=3,
+                                   power_curve=power_curves.Enercon_E115,
+                                   turbine_name="Enercon_E115",
+                                   other_cost=1,
+                                   other_production=1)
+
+    Master_storage.auction_results()
+    Master_storage.export(projects_export=True)
+
 
 def scenario2_other_costs():
     iterations = 100
@@ -67,8 +91,8 @@ def scenario2_other_costs():
 
 def scenario3_german_auctions():
     df_results = pd.DataFrame()
-    iterations = 16
-    ref_yield_scenarios = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
+    iterations = 10000
+    ref_yield_scenarios = [0, 1, 1.5]
 
     # submitted/won/max bid/average project
     for iii in auctions_supply_demand:
@@ -143,9 +167,12 @@ if __name__ == '__main__':
     scenario2_other_costs()
     scenario3_german_auctions()
     test()
-    """
+    
 
     scenario3_german_auctions()
+    """
+
+    scenario2()
 
     end_time = datetime.now()
     print("calculation ends")

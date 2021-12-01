@@ -165,7 +165,7 @@ class ProjectsStorage:
 
         self.export_dict = {}
         self.round_results = {"name": [], "process_id": [], "iteration": [], "supply": [], "demand": [], "ref_yield": [], "marginal_bid": [],
-                              "min_successful": [], "average_successful": [], "average_subsidy": [],
+                              "min_successful": [],"lowest_possible": [], "average_successful": [], "average_subsidy": [], "surplus_perMWh": [],
                               "subsidy": [], "subsidy_perMW": [], "surplus_projects": [], "surplus_projects_perMW": [],
                               "produced_el": [], "produced_el_perMW": []}
 
@@ -237,8 +237,10 @@ class ProjectsStorage:
             self.round_results["demand"].append(self.demand)
             self.round_results["marginal_bid"].append(marginal_bid)
             self.round_results["min_successful"].append(minimum_bid)
+            self.round_results["lowest_possible"].append("")
             self.round_results["average_successful"].append(sum(successful_bids)/len(successful_bids))
             self.round_results["average_subsidy"].append(sum(subsidy)/sum(produced_el))
+            self.round_results["surplus_perMWh"].append(sum(surplus)/sum(produced_el))
             self.round_results["subsidy"].append(sum(subsidy))
             self.round_results["subsidy_perMW"].append(sum(subsidy)/self.project_size_adjustment/len(winning_projects))
             self.round_results["surplus_projects"].append(sum(surplus))

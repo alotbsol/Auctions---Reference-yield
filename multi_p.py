@@ -28,7 +28,7 @@ def scenario3_german_auctions_multi(iterations=1, process_id=1):
                                                   ref_yield_scenarios=ref_yield_scenarios,
                                                   max_bid_possible=max_bid_possible,
                                                   project_size_adjustment=project_size_adjustment,
-                                                  process_id=process_id )
+                                                  process_id=process_id)
 
         for ii in range(iterations):
             ws_list = np.linspace(start=5, stop=9, num=number_of_projects, endpoint=True, retstep=False, dtype=None)
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     print("calculation starts")
     start_time = datetime.now()
 
-    iterations = 9
+    iterations = 8
     cpu_no = cpu_count()
     if cpu_no > iterations:
         cpu_no = 1
