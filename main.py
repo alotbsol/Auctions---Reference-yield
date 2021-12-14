@@ -169,9 +169,12 @@ def scenario5_german_auctions_average():
     distributions = [german_auctions.A_2015_to_2018]
 
     for iv in distributions:
-        print(iv)
     # submitted/won/max bid/average project
+        counter = 1
         for iii in auctions_supply_demand:
+            print("counter", counter, "out of", len(auctions_supply_demand))
+            counter += 1
+
             number_of_projects = auctions_supply_demand[iii][0]
             demand = auctions_supply_demand[iii][1]
             max_bid_possible = auctions_supply_demand[iii][2]
@@ -211,6 +214,7 @@ def scenario5_german_auctions_average():
         df_results = pd.DataFrame()
 
     writer.save()
+
 
 def scenario6_german_auctions_uniform():
     writer = pd.ExcelWriter("scenario6_german_auctions_uniform.xlsx", engine="xlsxwriter")
@@ -264,6 +268,7 @@ def scenario6_german_auctions_uniform():
         df_results = pd.DataFrame()
 
     writer.save()
+
 
 def scenario7_german_auctions_quartals():
     writer = pd.ExcelWriter("scenario7_german_auctions_quartals.xlsx", engine="xlsxwriter")
@@ -320,8 +325,10 @@ def scenario7_german_auctions_quartals():
 
 
 if __name__ == '__main__':
-    print("calculation starts")
     start_time = datetime.now()
+    print("START:", start_time)
+    print("calculation starts")
+
 
     scenario5_german_auctions_average()
 
