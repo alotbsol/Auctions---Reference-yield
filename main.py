@@ -159,6 +159,11 @@ def scenario4_other_costs_production():
     writer.save()
 
 
+
+
+
+
+
 def scenario5_german_auctions_average():
     writer = pd.ExcelWriter("scenario5_german_auctions.xlsx", engine="xlsxwriter")
 
