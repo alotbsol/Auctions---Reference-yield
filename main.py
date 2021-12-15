@@ -228,7 +228,11 @@ def scenario6_german_auctions_uniform():
     for iv in distributions:
         print(iv)
     # submitted/won/max bid/average project
+        counter = 1
         for iii in auctions_supply_demand:
+            print("counter", counter, "out of", len(auctions_supply_demand))
+            counter += 1
+
             number_of_projects = auctions_supply_demand[iii][0]
             demand = auctions_supply_demand[iii][1]
             max_bid_possible = auctions_supply_demand[iii][2]
@@ -280,9 +284,12 @@ def scenario7_german_auctions_quartals():
     distributions = german_auctions.quartals
 
     for iv in distributions:
-        print(iv)
     # submitted/won/max bid/average project
+        counter = 1
         for iii in auctions_supply_demand:
+            print(print(iv), "counter", counter, "out of", len(auctions_supply_demand))
+            counter += 1
+
             number_of_projects = auctions_supply_demand[iii][0]
             demand = auctions_supply_demand[iii][1]
             max_bid_possible = auctions_supply_demand[iii][2]
@@ -329,8 +336,8 @@ if __name__ == '__main__':
     print("START:", start_time)
     print("calculation starts")
 
-
     scenario5_german_auctions_average()
+    scenario6_german_auctions_uniform()
 
     end_time = datetime.now()
     print("calculation ends")
