@@ -341,8 +341,12 @@ if __name__ == '__main__':
     print("START:", start_time)
     print("calculation starts")
 
+    """
     scenario5_german_auctions_average()
     scenario6_german_auctions_uniform()
+    """
+
+    scenario7_german_auctions_quartals()
 
     end_time = datetime.now()
     print("calculation ends")
