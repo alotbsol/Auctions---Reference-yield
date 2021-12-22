@@ -25,3 +25,5 @@ good_and_bad = {"limits": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
                   "name": "medium_projects"
                   }
 
+model_distributions = [uniform_dist, good_projects, bad_projects, medium_projects, good_and_bad]
+

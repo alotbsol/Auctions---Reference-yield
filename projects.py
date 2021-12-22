@@ -111,8 +111,11 @@ class Project:
         self.extrapolated_correction_factor = calculate_extrapolated_correction(self.site_quality)
 
     def calculate_lcoe(self):
-        self.lcoe = min(self.base_lcoe * self.extrapolated_correction_factor * self.other_cost,
+        self.lcoe = self.base_lcoe * self.extrapolated_correction_factor * self.other_cost
+
+        """self.lcoe = min(self.base_lcoe * self.extrapolated_correction_factor * self.other_cost,
                         self.max_bid_possible * self.correction_factor)
+                        """
 
     def calculate_min_bid(self):
         self.min_bid = self.lcoe / self.correction_factor
@@ -209,12 +212,16 @@ class ProjectsStorage:
 
             minimum_bid = self.project_dict[str(winning_projects[0])].min_bid
 
-            if len(winning_projects) < self.demand:
+            """if len(winning_projects) < self.demand:
                 marginal_bid = self.max_bid_possible
             else:
                 marginal_project = winning_projects[-1]
                 marginal_bid = float(self.project_dict[str(marginal_project)].min_bid)
                 self.project_dict[str(marginal_project)].change_to_marginal()
+                """
+            marginal_project = winning_projects[-1]
+            marginal_bid = float(self.project_dict[str(marginal_project)].min_bid)
+            self.project_dict[str(marginal_project)].change_to_marginal()
 
             for ii in winning_projects:
                 self.project_dict[str(ii)].change_to_winning()
