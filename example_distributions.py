@@ -22,7 +22,7 @@ medium_projects = {"limits": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
 good_and_bad = {"limits": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
                   "values": [5, 5.1, 5.2, 5.3, 5.4, 7, 8.6, 8.7, 8.8, 8.9, 9],
-                  "name": "medium_projects"
+                  "name": "good_and_bad"
                   }
 
 model_distributions = [uniform_dist, good_projects, bad_projects, medium_projects, good_and_bad]
