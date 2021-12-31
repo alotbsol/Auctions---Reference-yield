@@ -347,7 +347,7 @@ def scenario7_german_auctions_quartals():
 
 
 def scenario8_under_subscribed():
-    writer = pd.ExcelWriter("scenario8_under_subscribed", engine="xlsxwriter")
+    writer = pd.ExcelWriter("scenario8_under_subscribed.xlsx", engine="xlsxwriter")
 
     df_results = pd.DataFrame()
     iterations = 10000
@@ -397,21 +397,15 @@ if __name__ == '__main__':
     start_time = datetime.now()
     print("START:", start_time)
     print("calculation starts")
-    """
-    scenario4_model_distributions()
-    """
 
-    """
+
     scenario1()
     scenario2_supply_demand()
     scenario3_other_costs()
+    scenario4_model_distributions()
     scenario5_german_auctions_average()
-    scenario6_german_auctions_uniform()
-    scenario7_german_auctions_quartals()
-
-    """
-
     scenario8_under_subscribed()
+
 
     end_time = datetime.now()
     print("calculation ends")
