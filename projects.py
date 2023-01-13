@@ -153,14 +153,15 @@ class Project:
 
 
 class ProjectsStorage:
-    def __init__(self, demand, name, ref_yield_scenarios, max_bid_possible=100, iteration=1, project_size_adjustment=3,
-                 ws_dist=0):
+    def __init__(self, name, ref_yield_scenarios, max_bid_possible=100, iteration=1, project_size_adjustment=3,
+                 ws_dist=0, demand=1, demand_list=[]):
         self.project_dict = {}
         self.number_of_projects = 0
         self.project_size_adjustment = project_size_adjustment
         self.ws_dist = ws_dist
 
         self.demand = demand
+        self.demand_list = demand_list
         self.name = name
         self.ref_yield_scenarios = ref_yield_scenarios
         self.max_bid_possible = max_bid_possible
@@ -253,6 +254,11 @@ class ProjectsStorage:
             self.round_results["surplus_projects_perMW"].append(sum(surplus)/self.project_size_adjustment/len(winning_projects))
             self.round_results["produced_el"].append(sum(produced_el))
             self.round_results["produced_el_perMW"].append(sum(produced_el)/self.project_size_adjustment/len(winning_projects))
+
+    def auction_results_multi_demand(self):
+        for i in self.demand_list:
+            self.demand = i
+            self.auction_results()
 
     def export(self, projects_export=True):
         writer = pd.ExcelWriter("{0}.xlsx".format(self.name), engine="xlsxwriter")
